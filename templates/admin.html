@@ -1,0 +1,598 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K2Think API 代理管理</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --secondary-color: #6366f1;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --light-bg: #f8fafc;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+        }
+
+        body {
+            background-color: var(--light-bg);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding-top: 2rem;
+        }
+
+        .container-fluid {
+            max-width: 1200px;
+        }
+
+        .navbar {
+            background-color: var(--card-bg);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .card {
+            border: none;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            padding: 1rem 1.25rem;
+        }
+
+        .stats-card {
+            text-align: center;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            height: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stats-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stats-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .mode-indicator {
+            display: inline-block;
+            padding: 0.35rem 0.75rem;
+            border-radius: 2rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+            margin-left: 0.5rem;
+        }
+
+        .mode-guest {
+            background-color: #e0e7ff;
+            color: #4338ca;
+        }
+
+        .mode-user {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .mode-card {
+            border: 2px solid transparent;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            height: 100%;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .mode-card.active {
+            border-color: var(--primary-color);
+            background-color: #f0f4ff;
+        }
+
+        .mode-card:hover {
+            border-color: var(--primary-color);
+        }
+
+        .mode-card h5 {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .mode-card i {
+            margin-right: 0.5rem;
+            font-size: 1.25rem;
+        }
+
+        .btn-switch {
+            min-width: 140px;
+            border-radius: 2rem;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-switch:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-guest {
+            background-color: #6366f1;
+            border-color: #6366f1;
+            color: white;
+        }
+
+        .btn-guest:hover, .btn-guest.active {
+            background-color: #4f46e5;
+            border-color: #4f46e5;
+            color: white;
+        }
+
+        .btn-user {
+            background-color: #10b981;
+            border-color: #10b981;
+            color: white;
+        }
+
+        .btn-user:hover, .btn-user.active {
+            background-color: #059669;
+            border-color: #059669;
+            color: white;
+        }
+
+        .token-editor {
+            background-color: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .token-editor textarea {
+            min-height: 200px;
+            font-family: monospace;
+            font-size: 0.875rem;
+        }
+
+        .config-table th {
+            width: 30%;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+        }
+
+        .custom-toast {
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            min-width: 300px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .toast-icon {
+            margin-right: 0.75rem;
+            font-size: 1.5rem;
+        }
+
+        .toast-success .toast-icon {
+            color: var(--success-color);
+        }
+
+        .toast-error .toast-icon {
+            color: var(--danger-color);
+        }
+
+        .toast-warning .toast-icon {
+            color: var(--warning-color);
+        }
+
+        .page-title {
+            font-weight: 700;
+            font-size: 1.75rem;
+            margin-bottom: 0;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .section-title {
+            font-weight: 600;
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .footer-links {
+            display: flex;
+            align-items: center;
+        }
+
+        .footer-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            margin-left: 1.5rem;
+            display: flex;
+            align-items: center;
+            transition: color 0.3s ease;
+        }
+
+        .footer-link:hover {
+            color: var(--primary-color);
+        }
+
+        .footer-link i {
+            margin-right: 0.5rem;
+        }
+
+    </style>
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="bi bi-cpu"></i> K2Think API 代理管理
+            </a>
+            <div class="d-flex align-items-center">
+                <span class="me-2">当前模式:</span>
+                <span id="current-mode" class="mode-indicator mode-guest">游客代理</span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <div class="stats-card card">
+                                    <div class="stats-number" id="total-tokens">-</div>
+                                    <div class="stats-label">总Token数</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="stats-card card">
+                                    <div class="stats-number" id="active-tokens">-</div>
+                                    <div class="stats-label">活跃Token</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="stats-card card">
+                                    <div class="stats-number" id="inactive-tokens">-</div>
+                                    <div class="stats-label">失效Token</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="section-title mb-0">代理模式切换</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="mode-card active" id="guest-mode-card">
+                                    <h5><i class="bi bi-person-badge"></i> 游客代理模式</h5>
+                                    <p class="mb-3">使用游客Token和代理地址，适合公开访问场景。</p>
+                                    <button class="btn btn-primary btn-switch btn-guest active" id="btn-guest" onclick="switchMode('guest')">
+                                        <i class="bi bi-check-circle-fill me-2"></i>当前模式
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mode-card" id="user-mode-card">
+                                    <h5><i class="bi bi-person-check-fill"></i> 用户代理模式</h5>
+                                    <p class="mb-3">使用用户Token和代理地址，适合授权用户访问。</p>
+                                    <button class="btn btn-outline-primary btn-switch btn-user" id="btn-user" onclick="switchMode('user')">
+                                        <i class="bi bi-circle me-2"></i>切换到此模式
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="section-title mb-0">Token管理</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="token-editor">
+                            <h5 class="mb-3">编辑当前模式的Token</h5>
+                            <p class="text-muted mb-3">每行一个Token，保存后立即生效</p>
+                            <textarea class="form-control mb-3" id="token-content" placeholder="请输入Token，每行一个..."></textarea>
+                            <div class="d-flex justify-content-end">
+                                <button class="btn btn-primary" onclick="saveTokens()">
+                                    <i class="bi bi-save me-2"></i>保存Token
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="section-title mb-0">当前配置</h4>
+                <div class="footer-links">
+                    <a href="https://github.com/zsuroy/k2think2api" target="_blank" class="footer-link">
+                        <i class="bi bi-github"></i> GitHub
+                    </a>
+                </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table config-table">
+                                <tbody>
+                                    <tr>
+                                        <th>当前Token文件</th>
+                                        <td id="current-tokens-file">-</td>
+                                    </tr>
+                                    <tr>
+                                        <th>当前API地址</th>
+                                        <td id="current-api-url">-</td>
+                                    </tr>
+                                    <tr>
+                                        <th>工具支持</th>
+                                        <td id="tool-support">-</td>
+                                    </tr>
+                                    <tr>
+                                        <th>调试日志</th>
+                                        <td id="debug-logging">-</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 页面加载时获取当前状态
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchStatus();
+        });
+
+        // 获取当前状态
+        function fetchStatus() {
+            fetch('/admin/status')
+                .then(response => response.json())
+                .then(data => {
+                    // 更新模式指示器
+                    const modeElement = document.getElementById('current-mode');
+                    const guestModeCard = document.getElementById('guest-mode-card');
+                    const userModeCard = document.getElementById('user-mode-card');
+                    const guestBtn = document.getElementById('btn-guest');
+                    const userBtn = document.getElementById('btn-user');
+
+                    if (data.mode === 'guest') {
+                        modeElement.textContent = '游客代理';
+                        modeElement.className = 'mode-indicator mode-guest';
+
+                        guestModeCard.classList.add('active');
+                        userModeCard.classList.remove('active');
+
+                        guestBtn.classList.add('active');
+                        guestBtn.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>当前模式';
+
+                        userBtn.classList.remove('active');
+                        userBtn.innerHTML = '<i class="bi bi-circle me-2"></i>切换到此模式';
+                    } else {
+                        modeElement.textContent = '用户代理';
+                        modeElement.className = 'mode-indicator mode-user';
+
+                        userModeCard.classList.add('active');
+                        guestModeCard.classList.remove('active');
+
+                        userBtn.classList.add('active');
+                        userBtn.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>当前模式';
+
+                        guestBtn.classList.remove('active');
+                        guestBtn.innerHTML = '<i class="bi bi-circle me-2"></i>切换到此模式';
+                    }
+
+                    // 更新统计信息
+                    document.getElementById('total-tokens').textContent = data.token_stats.total_tokens;
+                    document.getElementById('active-tokens').textContent = data.token_stats.active_tokens;
+                    document.getElementById('inactive-tokens').textContent = data.token_stats.inactive_tokens;
+
+                    // 更新配置信息
+                    document.getElementById('current-tokens-file').textContent = data.config.tokens_file;
+                    document.getElementById('current-api-url').textContent = data.config.api_url;
+                    document.getElementById('tool-support').textContent = data.config.tool_support ? '启用' : '禁用';
+                    document.getElementById('debug-logging').textContent = data.config.debug_logging ? '启用' : '禁用';
+
+                    // 获取当前Token文件内容
+                    fetchTokenContent();
+                })
+                .catch(error => {
+                    console.error('获取状态失败:', error);
+                    showToast('获取状态失败，请检查网络连接', 'error');
+                });
+        }
+
+        // 获取Token文件内容
+        function fetchTokenContent() {
+            fetch('/admin/tokens/content')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('token-content').value = data.tokens.join('\n');
+                })
+                .catch(error => {
+                    console.error('获取Token内容失败:', error);
+                    showToast('获取Token内容失败', 'error');
+                });
+        }
+
+        // 保存Token
+        function saveTokens() {
+            const tokens = document.getElementById('token-content').value
+                .split('\\n')
+                .map(token => token.trim())
+                .filter(token => token.length > 0);
+
+            fetch('/admin/tokens/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ tokens: tokens })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    showToast('Token保存成功', 'success');
+                    fetchStatus(); // 刷新状态
+                } else {
+                    throw new Error(data.message || '保存Token失败');
+                }
+            })
+            .catch(error => {
+                console.error('保存Token失败:', error);
+                showToast('保存Token失败: ' + error.message, 'error');
+            });
+        }
+
+        // 切换模式
+        function switchMode(mode) {
+            fetch('/admin/switch_mode', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ mode: mode })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    showToast(`已成功切换到${mode === 'guest' ? '游客代理' : '用户代理'}模式`, 'success');
+                    fetchStatus(); // 刷新状态
+                } else {
+                    throw new Error(data.message || '切换模式失败');
+                }
+            })
+            .catch(error => {
+                console.error('切换模式失败:', error);
+                showToast('切换模式失败: ' + error.message, 'error');
+            });
+        }
+
+        // 显示提示消息
+        function showToast(message, type = 'success') {
+            const toastContainer = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+
+            let iconClass = '';
+            if (type === 'success') {
+                iconClass = 'bi-check-circle-fill';
+                toast.className = 'custom-toast toast-success';
+            } else if (type === 'error') {
+                iconClass = 'bi-x-circle-fill';
+                toast.className = 'custom-toast toast-error';
+            } else if (type === 'warning') {
+                iconClass = 'bi-exclamation-triangle-fill';
+                toast.className = 'custom-toast toast-warning';
+            }
+
+            toast.innerHTML = `
+                <div class="toast-icon">
+                    <i class="bi ${iconClass}"></i>
+                </div>
+                <div>${message}</div>
+            `;
+
+            toastContainer.appendChild(toast);
+
+            // 3秒后自动消失
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    toastContainer.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

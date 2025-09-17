@@ -1,0 +1,17 @@
+# K2Think Token文件示例
+# 每行一个token，以下为示例格式（请替换为实际的token）
+
+# 注意事项：
+# 1. 每行只能有一个token
+# 2. 空行和以#开头的注释行会被忽略
+# 3. Token失效时会自动标记，可通过API管理界面重置
+# 4. 建议至少配置2-3个token以确保高可用性
+
+# 以下放置几个【用户代理】可用token，随时可能失效，请自行替换自己的token
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjlhMGE1ZDY5LWQ0ZDgtNGFiMC1hYjhjLTQ5ODNmY2NhZDM4NyIsImV4cCI6MTc1ODIwMjg4NX0.mTDsIrtO0iVTE5hhLcX1bTgmJHMydsHQqGKUsucEg_0
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImY2NmU3MWUwLWUyYTUtNGIwMi04MGY1LWE0Y2RiYjJjZTM1OSIsImV4cCI6MTc1ODIwMjg4Nn0.zcNU3ylq5YXFSFidgzQOXwoicqAefUnf9x1HtKFpY2I
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjMxZWZmMWU3LTQwNTUtNDg3ZS04MzA1LWFiMDU5MTE1OTc0OSIsImV4cCI6MTc1ODIwMjkxM30.3lgvrmPo6esDsfAbVlkl37vRsN3EKYs6BXq45bvu9-E
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImIwZDY2YTZmLTAwN2MtNDNkNS1hZWExLWRkMzM2NjM1ZmUyNCIsImV4cCI6MTc1ODIwMjk0NX0.urcVmh_lBivvE6tNnCmVeDW5vW52GXoYFoqFh196T1I
+
+# 随机生成【游客代理】
+sk-k2think-88888888
